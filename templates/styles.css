@@ -1,0 +1,186 @@
+/* Ensure the body and html fill the viewport */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #000;
+    overflow: hidden;
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #000;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.controls-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 20px;
+}
+
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+}
+
+.control-buttons button {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+    outline: none;
+    border: none;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+    border-radius: 5px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-buttons button:hover,
+.control-buttons button:focus {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+}
+
+.control-buttons button:active {
+    background-color: rgba(255, 4, 4, 0.8);
+}
+
+.control-buttons button:focus {
+    outline: none;
+}
+
+@media (max-width: 500px) {
+    .control-buttons button {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 400px) {
+    .control-buttons button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+.d-pad {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
+    gap: 5px;
+}
+
+.d-pad .empty {
+    visibility: hidden;
+}
+
+.infrared-bar {
+    display: flex;
+    width: 100%;
+    height: 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.infrared-section {
+    flex: 1;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#movement-controls {
+    margin-left: 20px;
+}
+
+#arm-controls {
+    margin-right: 20px;
+}
+
+.connection-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+#status-badge {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000;
+}
+
+#infrared-status {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+.infrared-section {
+    width: 30px;
+    height: 20px;
+    margin: 0 5px;
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+.action-item {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.action-item:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* Hide numbers for non-keyboard devices */
+@media (pointer: coarse) {
+    .action-item::before {
+        content: '';
+    }
+}
+
+/* Ensure no dots are shown */
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}

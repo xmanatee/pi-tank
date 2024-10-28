@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+eventlet
+pigpio
+picamera2
+RPi.GPIO
+rpi-ws281x
