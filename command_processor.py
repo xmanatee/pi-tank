@@ -16,7 +16,7 @@ class CommandProcessor:
         self.motor = Motor(pwm_servo)
         self.servos = Servos(pwm_servo)
         self.ultrasonic = Ultrasonic()
-        self.led = Led()  # Initialize the LED class here
+        self.led = Led()
         self.current_direction = None
         self.lock = eventlet.semaphore.Semaphore()
         self.infrared = Infrared()
@@ -56,10 +56,8 @@ class CommandProcessor:
                 self.motor.set_motor_model(0, 0)
                 self.current_direction = None
             elif key in ['i', 'k']:
-                # Stop moving servo 1
                 self.servos.get(1).stop()
             elif key in ['j', 'l']:
-                # Stop moving servo 0
                 self.servos.get(0).stop()
 
     def handle_action(self, action):
@@ -92,35 +90,21 @@ class CommandProcessor:
                 self.servos.get(0).start(-1)
             elif action == 'arm_right':
                 self.servos.get(0).start(1)
-            elif action == 'stop_arm':
-                self.servos.get(0).stop()
-                self.servos.get(1).stop()
             elif action == 'light_up_leds':
                 self.led.show_off()
-            elif action == 'take_photo':
-                # TODO: implement
-                pass
             elif action == 'reset_servos':
                 self.servos.reset_all()
-            elif action == 'make_sound':
-                # TODO: check
-                pass
+            else:
+                logging.warning(f"Unknown action: {action}")
 
     def get_sensor_data(self):
         """Retrieves sensor data."""
         distance = self.ultrasonic.get_distance()
-        battery_percentage = self.get_battery_percentage()
         infrared_data = self.infrared.get_all()
         return {
             'distance': distance,
-            'battery_percentage': battery_percentage,
             'infrared_data': infrared_data,
         }
-
-    def get_battery_percentage(self):
-        """Retrieves battery percentage."""
-        # TODO: figure out battery
-        return 75
 
     def reset_all(self):
         """Stops all movements and resets motors and servos."""

@@ -2,8 +2,6 @@ import time
 from RPi import GPIO
 
 
-# TODO: Rewrite using pigpio
-# TODO: Fix
 class Ultrasonic:
     MAX_DISTANCE = 300
 

@@ -9,12 +9,10 @@ from video_streaming import VideoCamera
 app = Flask(__name__, static_folder='templates')
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode=ASYNC_MODE)
 
-# Global variables
 background_thread_running = True
 command_processor = None
 video_camera = None
 
-# Routes
 @app.route('/')
 def index():
     """Home page."""
@@ -26,20 +24,15 @@ def favicon():
 
 def gen(camera):
     """Video streaming generator function."""
-    try:
-        while True:
-            frame = camera.get_frame()
-            if frame:
-                logging.debug("Sending a video frame")
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            else:
-                logging.warning("No frame received from camera")
-            # Control the frame rate (e.g., 0.05 for ~20 FPS)
-            socketio.sleep(0.05)
-    except Exception as e:
-        logging.error(f"Error in video streaming generator: {e}")
-        raise e
+    while True:
+        frame = camera.get_frame()
+        if frame:
+            logging.debug("Sending a video frame")
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        else:
+            logging.warning("No frame received from camera")
+        socketio.sleep(0.05)
 
 @app.route('/video_feed')
 def video_feed():
@@ -47,7 +40,6 @@ def video_feed():
     return Response(gen(video_camera),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# WebSocket events
 @socketio.on('connect')
 def handle_connect():
     logging.info('Client connected')
@@ -56,7 +48,6 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     logging.info('Client disconnected')
-    # Stop the robot when client disconnects
     command_processor.reset_all()
 
 @socketio.on('key_press')
@@ -79,13 +70,10 @@ def handle_action(data):
 
 def sensor_data_emit():
     """Background thread to emit sensor data."""
-    try:
-        while background_thread_running:
-            sensor_data = command_processor.get_sensor_data()
-            socketio.emit('sensor_data', sensor_data)
-            socketio.sleep(0.5)  # Adjust as needed
-    except Exception as e:
-        logging.error(f"Error in sensor_data_emit: {e}")
+    while background_thread_running:
+        sensor_data = command_processor.get_sensor_data()
+        socketio.emit('sensor_data', sensor_data)
+        socketio.sleep(0.5)
 
 def start_server():
     """Starts the Flask-SocketIO server."""

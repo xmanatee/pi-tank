@@ -1,6 +1,6 @@
 from RPi import GPIO
 
-# TODO: Rewrite using pigpio
+
 class Infrared:
     def __init__(self):
         self.ir01 = 16

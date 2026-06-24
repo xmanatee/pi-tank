@@ -43,9 +43,7 @@ sudo python3 main.py
 - Use the on-screen controls or keyboard keys (`W`, `A`, `S`, `D`, `I`, `J`, `K`, `L`) to control the robot.
 
 
-## Docker Setup (Experimental)
-
-**NOTE:** Docker setup is experimental and not fully tested.
+## Docker Setup
 
 **Build the Docker Image:**
 
@@ -65,7 +63,7 @@ docker run \
     pi-tank
 ```
 
-Note: Docker may have limitations with hardware access. Ensure the devices are correctly mapped and permissions are set.
+Docker needs direct access to the Raspberry Pi camera and GPIO devices, so keep the mapped devices and privileged mode aligned with the host hardware.
 
 ## Contributing
 Contributions are welcome! Please open an issue or submit a pull request.

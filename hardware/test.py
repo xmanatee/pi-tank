@@ -11,7 +11,6 @@ from motor import Motor
 from ultrasonic import Ultrasonic
 
 
-# TODO: Rewrite using pigpio
 def test_led():
     led = Led()
     try:
@@ -150,4 +149,3 @@ if __name__ == '__main__':
         test_servo()
     elif sys.argv[1] == 'Camera':
         test_camera()
-

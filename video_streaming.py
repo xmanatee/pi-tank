@@ -1,5 +1,3 @@
-# server/video_streaming.py
-
 import io
 import logging
 import eventlet
@@ -16,13 +14,12 @@ class StreamingOutput(io.BufferedIOBase):
         self.frame_queue = eventlet.queue.Queue(maxsize=1)
 
     def write(self, buf):
-        # Overwrite the old frame if the queue is full
         if self.frame_queue.full():
             try:
                 self.frame_queue.get_nowait()
                 logging.debug("Discarded old frame")
             except eventlet.queue.Empty:
-                pass
+                logging.debug("Frame queue was already empty")
         self.frame_queue.put(buf)
         logging.debug("New frame added to queue")
 
@@ -46,24 +43,23 @@ class VideoCamera:
             logging.debug("Frame retrieved from queue")
             return frame
         except eventlet.queue.Empty:
-            # No frame is available
             logging.warning("No frame available in queue")
             return None
 
     def stop(self):
         logging.info("Stopping camera")
-        try:
-            self.camera.stop_recording()
-            logging.info("Camera recording stopped")
-        except Exception as e:
-            logging.error(f"Error stopping camera recording: {e}")
-        try:
-            self.camera.stop()
-            logging.info("Camera stopped")
-        except Exception as e:
-            logging.error(f"Error stopping camera: {e}")
-        try:
-            self.camera.close()
-            logging.info("Camera closed")
-        except Exception as e:
-            logging.error(f"Error closing camera: {e}")
+        errors = []
+        for action_name, action in (
+            ("recording", self.camera.stop_recording),
+            ("camera", self.camera.stop),
+            ("camera handle", self.camera.close),
+        ):
+            try:
+                action()
+                logging.info(f"Stopped {action_name}")
+            except RuntimeError as exc:
+                logging.exception(f"Error stopping {action_name}")
+                errors.append((action_name, exc))
+        if errors:
+            names = ", ".join(name for name, _ in errors)
+            raise RuntimeError(f"Failed to stop camera cleanly: {names}") from errors[0][1]
