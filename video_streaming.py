@@ -1,6 +1,6 @@
 import io
 import logging
-import eventlet
+import queue
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -11,16 +11,20 @@ class StreamingOutput(io.BufferedIOBase):
 
     def __init__(self):
         super().__init__()
-        self.frame_queue = eventlet.queue.Queue(maxsize=1)
+        self.frame_queue = queue.Queue(maxsize=1)
 
     def write(self, buf):
         if self.frame_queue.full():
             try:
                 self.frame_queue.get_nowait()
                 logging.debug("Discarded old frame")
-            except eventlet.queue.Empty:
+            except queue.Empty:
                 logging.debug("Frame queue was already empty")
-        self.frame_queue.put(buf)
+        try:
+            self.frame_queue.put_nowait(buf)
+        except queue.Full:
+            # Another camera callback already supplied a newer frame.
+            pass
         logging.debug("New frame added to queue")
 
 class VideoCamera:
@@ -42,7 +46,7 @@ class VideoCamera:
             frame = self.output.frame_queue.get_nowait()
             logging.debug("Frame retrieved from queue")
             return frame
-        except eventlet.queue.Empty:
+        except queue.Empty:
             logging.warning("No frame available in queue")
             return None
 

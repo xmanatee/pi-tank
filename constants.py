@@ -14,4 +14,4 @@ JPEG_QUALITY = 90
 VIDEO_QUALITY = Quality.VERY_HIGH
 
 # Flask-SocketIO Configuration
-ASYNC_MODE = 'eventlet'
+ASYNC_MODE = 'threading'

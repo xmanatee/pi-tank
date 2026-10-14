@@ -11,7 +11,9 @@ if systemctl cat pi-tank.service >/dev/null 2>&1; then
 fi
 install -d -m 0755 /opt/pi-tank
 # Copy tracked application files without credentials, repository metadata or caches.
-rsync -a --exclude=.git --exclude=.env --exclude=__pycache__ ./ /opt/pi-tank/
+rsync -a --exclude=.git --exclude=.env --exclude=.venv --exclude=__pycache__ ./ /opt/pi-tank/
+python3 -m venv --system-site-packages /opt/pi-tank/.venv
+/opt/pi-tank/.venv/bin/python -m pip install --require-hashes -r /opt/pi-tank/requirements.txt
 chown -R root:root /opt/pi-tank
 chmod -R go-w /opt/pi-tank
 if [ ! -e /etc/pi-tank.env ]; then

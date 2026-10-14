@@ -112,8 +112,8 @@ def sensor_data_emit():
         socketio.emit('sensor_data', sensor_data)
         socketio.sleep(0.5)
 
-def start_server():
-    """Starts the Flask-SocketIO server."""
+def initialize_hardware():
+    """Initialize hardware in the single serving worker, after it forks."""
     global background_thread_running, command_processor, video_camera, controller, watchdog_thread
     token = os.environ.get('TANK_TOKEN', '')
     secret = os.environ.get('TANK_SESSION_SECRET', '')
@@ -129,7 +129,6 @@ def start_server():
 
     background_thread_running = True
     socketio.start_background_task(sensor_data_emit)
-    socketio.run(app, host=os.environ.get('TANK_BIND', '127.0.0.1'), port=5013, debug=False, use_reloader=False)
 
 def stop_server():
     """Stops the camera and other hardware components."""
