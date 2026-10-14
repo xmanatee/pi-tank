@@ -1,0 +1,19 @@
+[Unit]
+Description=Authenticated Raspberry Pi tank controller
+Requires=pigpiod.service
+After=pigpiod.service network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/pi-tank
+EnvironmentFile=/etc/pi-tank.env
+ExecStartPre=/usr/bin/python3 /opt/pi-tank/stop_motors.py
+ExecStart=/usr/bin/python3 /opt/pi-tank/main.py
+ExecStopPost=/usr/bin/python3 /opt/pi-tank/stop_motors.py
+KillMode=control-group
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

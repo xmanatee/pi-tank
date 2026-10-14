@@ -1,72 +1,27 @@
 # Raspberry Pi Tank Server
 
-A complete rewrite of the [Freenove Tank Robot Kit code](https://github.com/Freenove/Freenove_Tank_Robot_Kit_for_Raspberry_Pi) to control the Freenove Tank Robot (because I couldn't tolerate running [that](https://github.com/Freenove/Freenove_Tank_Robot_Kit_for_Raspberry_Pi/blob/main/Code/setup.py)). This implementation provides a simple HTTP server hosted on the Raspberry Pi, accessible via your browser. The UI displays the camera feed and controls for the robot - no client application required.
+Browser control and camera streaming for the Freenove Tank Robot on a Raspberry Pi 4. The hardware needs Raspberry Pi OS and its native camera/GPIO libraries.
 
-**IMPORTANT:** Only tested on Raspberry Pi 4 B (e.g., logic for disabling audio on the board is commented out in `init.sh`).
+## Install
 
-## Features
+On the Pi, clone this repository and run `sudo bash init.sh`. It installs the native systemd service, keeps pigpiod on localhost, and creates independent login and session secrets in `/etc/pi-tank.env` (root only). It does not reboot or start a privileged Docker container.
 
-- **Web-Based Control Interface:** Control your robot directly from a web browser.
-- **Live Video Streaming:** View the camera feed in real-time.
-- **No Client Application Needed:** Access the controls via HTTP.
+After changing the code, run `sudo bash install-service.sh` and `sudo systemctl restart pi-tank`.
 
-## Prerequisites
+## Connect
 
-- Raspberry Pi 4 B with Raspberry Pi OS Bullseye installed.
-- Freenove Tank Robot Kit assembled and connected.
-- Internet connection for installing dependencies.
+From your private machine:
 
-## Installation
-
-### 1. Clone the Repository
-
-1. Move the code to your board:
-```bash
-git clone https://github.com/xmanatee/pi-tank.git
+```sh
+ssh -L 5013:127.0.0.1:5013 xmanatee@raspberry-pi.local
 ```
 
-### 2. Set Up the Board:
-```bash
-cd pi-tank
-sudo bash init.sh
-```
+Open <http://127.0.0.1:5013> and log in with `TANK_TOKEN` from `/etc/pi-tank.env`. Keep that token private. The server binds to loopback by default; `TANK_BIND` is in the same environment file.
 
-### 3. Run the Server:
-```bash
-sudo python3 main.py
-```
+Use the browser controls or W/A/S/D and I/J/K/L. Only one connected browser owns the controller at a time. Movement stops when its heartbeat is lost, it disconnects, or its tab loses focus. The systemd service also runs an independent motor stop before startup and after the process exits, including a forced termination. Keep a physical power cutoff accessible when operating the robot.
 
-## Usage
-
-- Access the server via `http://raspberry-pi.local:5013` or `http://<raspberry-pi-ip>:5013` in your web browser.
-
-- Use the on-screen controls or keyboard keys (`W`, `A`, `S`, `D`, `I`, `J`, `K`, `L`) to control the robot.
-
-
-## Docker Setup
-
-**Build the Docker Image:**
-
-```bash
-docker build -t pi-tank .
-```
-
-**Run the Docker Container:**
-
-```bash
-docker run \
-    --privileged \
-    --device /dev/vchiq \
-    --device /dev/gpiomem \
-    --device /dev/video0 \
-    -p 5013:5013 \
-    pi-tank
-```
-
-Docker needs direct access to the Raspberry Pi camera and GPIO devices, so keep the mapped devices and privileged mode aligned with the host hardware.
-
-## Contributing
-Contributions are welcome! Please open an issue or submit a pull request.
+`systemctl status pi-tank` and `journalctl -u pi-tank` show service health. Controller logic can be checked without hardware using `python3 -m unittest test_control.py`. Camera, GPIO, and motor behavior still require testing on the physical Pi.
 
 ## License
-This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+Apache License 2.0; see LICENSE.
