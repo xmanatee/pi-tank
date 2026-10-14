@@ -6,7 +6,7 @@ Browser control and camera streaming for the Freenove Tank Robot on a Raspberry 
 
 On the Pi, clone this repository and run `sudo bash init.sh`. It installs the native systemd service, keeps pigpiod on localhost, and creates independent login and session secrets in `/etc/pi-tank.env` (root only). It does not reboot or start a privileged Docker container.
 
-After changing the code, run `sudo bash install-service.sh` and `sudo systemctl restart pi-tank`.
+After changing the code, run `sudo bash install-service.sh`. It stops the service before replacing code and starts it again afterward.
 
 ## Connect
 

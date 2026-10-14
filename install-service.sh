@@ -5,6 +5,10 @@ if [ "$EUID" -ne 0 ]; then
   echo "Run this installer as root." >&2
   exit 1
 fi
+# Stop using the installed helper before replacing code or restarting pigpiod.
+if systemctl cat pi-tank.service >/dev/null 2>&1; then
+  systemctl stop pi-tank.service
+fi
 install -d -m 0755 /opt/pi-tank
 # Copy tracked application files without credentials, repository metadata or caches.
 rsync -a --exclude=.git --exclude=.env --exclude=__pycache__ ./ /opt/pi-tank/
