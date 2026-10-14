@@ -160,3 +160,16 @@ document.addEventListener('keydown', function (event) {
         document.getElementById('actionModal').style.display = 'none';
     }
 });
+
+// A suspended tab or disconnected client must stop movement.
+setInterval(function () {
+    if (socket.connected && document.visibilityState === 'visible') socket.emit('heartbeat');
+}, 200);
+function stopMovement() {
+    socket.emit('action', {action: 'stop'});
+    socket.emit('action', {action: 'stop_arm'});
+}
+window.addEventListener('blur', stopMovement);
+document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') stopMovement();
+});

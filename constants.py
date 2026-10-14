@@ -15,4 +15,3 @@ VIDEO_QUALITY = Quality.VERY_HIGH
 
 # Flask-SocketIO Configuration
 ASYNC_MODE = 'eventlet'
-CORS_ALLOWED_ORIGINS = '*'

@@ -1,5 +1,5 @@
 import logging
-import eventlet
+import threading
 import pigpio
 
 from hardware.motor import Motor
@@ -18,7 +18,7 @@ class CommandProcessor:
         self.ultrasonic = Ultrasonic()
         self.led = Led()
         self.current_direction = None
-        self.lock = eventlet.semaphore.Semaphore()
+        self.lock = threading.Lock()
         self.infrared = Infrared()
 
     def handle_key_press(self, key):
@@ -93,6 +93,8 @@ class CommandProcessor:
             elif action == 'light_up_leds':
                 self.led.show_off()
             elif action == 'reset_servos':
+                for servo in self.servos.servos.values():
+                    servo.stop()
                 self.servos.reset_all()
             else:
                 logging.warning(f"Unknown action: {action}")
@@ -106,10 +108,20 @@ class CommandProcessor:
             'infrared_data': infrared_data,
         }
 
+    def stop_all(self):
+        """Stop motors and continuous servo motion without moving to a new position."""
+        with self.lock:
+            self.motor.set_motor_model(0, 0)
+            self.current_direction = None
+            for servo in self.servos.servos.values():
+                servo.stop()
+
     def reset_all(self):
         """Stops all movements and resets motors and servos."""
         with self.lock:
             logging.info("Resetting all motors and servos to default positions.")
             self.motor.set_motor_model(0, 0)
             self.current_direction = None
+            for servo in self.servos.servos.values():
+                servo.stop()
             self.servos.reset_all()
